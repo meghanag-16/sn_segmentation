@@ -1,0 +1,148 @@
+{
+  "_about": "Frozen settings of the SN segmentation pipeline. Every value here was decided while the method was developed; change one only on purpose and record why.",
+
+  "seeds": {
+    "pipeline_seed": 595026,
+    "fold_seed": 723635
+  },
+
+  "dataset": {
+    "file_stems": {"spir": "T1W_3D_SPIR", "t1w": "T1W", "mask": "sn_mask"},
+    "accepted_ext": [".nii", ".nii.gz"],
+    "group_rules": [
+      [["Schiz", "acute"], "acute"],
+      [["Schiz", "chronic"], "chronic"],
+      [["Healthy_controls"], "control"],
+      [["testing", "HC"], "test_HC"],
+      [["testing", "SCZ"], "test_SCZ"]
+    ],
+    "dev_groups": ["acute", "chronic", "control"],
+    "test_groups": ["test_HC", "test_SCZ"],
+    "subject_id_format": "{group}_{folder_name}",
+    "folder_name_pattern": "^(SCZ|HC)-\\d+[MF]$",
+    "expected_n_folders": 76,
+    "expected_dev_counts": {"acute": 17, "chronic": 19, "control": 20},
+    "expected_test_counts": {"test_HC": 10, "test_SCZ": 9},
+    "expected_shape": {"spir": [320, 320, 50], "t1w": [192, 256, 256], "mask": [320, 320, 50]},
+    "expected_zooms": {"spir": [0.5625, 0.5625, 1.0], "t1w": [1.0, 1.0, 1.0], "mask": [0.5625, 0.5625, 1.0]},
+    "zoom_tolerance": 0.001,
+    "affine_tolerance": 0.001,
+    "excluded_masks": {
+      "chronic_SCZ-60M": "outlier mask (volume robust z about 17, negative values); excluded by the investigator"
+    },
+    "mask_header_override": ["control_HC-19M", "control_HC-21M", "control_HC-25F", "control_HC-39F"],
+    "mask_foreground_rule": "value != 0",
+    "n_folds": 5,
+    "folds_file": null,
+    "test_subjects_file": null
+  },
+
+  "rigid_registration": {
+    "spir_world": "sform",
+    "save_t1w_in_spir": true,
+    "n_threads": 4,
+    "attempts": [
+      {"lr": 1.0, "sampling": 0.25, "shrink": [4, 2, 1], "smooth": [2.0, 1.0, 0.0]},
+      {"lr": 0.5, "sampling": 0.5, "shrink": [8, 4, 2, 1], "smooth": [3.0, 2.0, 1.0, 0.0]}
+    ],
+    "qc_levels": [6, 12, 18, 24, 30, 36, 42, 48],
+    "qc_half_window_vox": 120,
+    "qc_per_page": 10,
+    "viewed_qc_pages": true,
+    "grade_exceptions": {
+      "acute_SCZ-42M": "pass: flagged, reproducible to 0.11 mm, outlines aligned",
+      "acute_SCZ-54F": "pass: flagged, 7.7 deg head turn, reproducible to 0.04 mm, outlines aligned"
+    }
+  },
+
+  "atlas_registration": {
+    "files": {
+      "template": "^CIT168_T1w_head_700um\\.nii(\\.gz)?$",
+      "prob_bilateral": "^prob_atlas_bilateral\\.nii(\\.gz)?$",
+      "prob_left": "^prob_atlas\\.nii(\\.gz)?$",
+      "labels": "^labels(\\.txt)?$"
+    },
+    "n_threads": 4,
+    "reg_type": "SyN",
+    "template_reg_spacing_mm": 1.0,
+    "save_warps": false,
+    "min_free_gb": 2.0,
+    "slab_edge_p": 0.25,
+    "head_depth_mm": 170.0,
+    "retry_strategies": ["head_init"],
+    "retry_keep_margin": 0.02,
+    "run_chain_test": true,
+    "chain_test_threshold": 0.98,
+    "qc_offsets": [-4, -2, 0, 2, 4],
+    "qc_half_window_vox": 60,
+    "qc_per_page": 10,
+    "viewed_qc_pages": true,
+    "grade_exceptions": {
+      "chronic_SCZ-48M": "pass: low end of the template-T1w similarity (flag rule), atlas on the SN visually, 0.9 mm from mask",
+      "chronic_SCZ-60M": "pass: low end of similarity; atlas on the SN visually; its mask is the outlier excluded in the audit",
+      "control_HC-74F": "pass: low end of the template-T1w similarity (flag rule), atlas on the SN visually, 0.7 mm from mask",
+      "test_HC_HC-64M": "pass: low end of the template-T1w similarity (flag rule), atlas on the SN visually (no mask)",
+      "test_SCZ_SCZ-50M": "pass: low end of the template-T1w similarity (flag rule), atlas on the SN visually (no mask)"
+    }
+  },
+
+  "crop_and_normalise": {
+    "size_mode": "frozen",
+    "size_voxels": [112, 80],
+    "margin_mm": 10.0,
+    "round_to_multiple": 16,
+    "ref_band_mm": [1.0, 3.0],
+    "ref_erode_vox": 1,
+    "ref_min_vox": 50,
+    "ref_max_boot_cv": 0.02,
+    "norm_network": "zscore",
+    "norm_measure": "refratio",
+    "run_n4": false,
+    "midline_rule": "template",
+    "high_slope_min": 0.01,
+    "stop_if_crop_cuts": false,
+    "viewed_qc_pages": true,
+    "manual_exclude": {},
+    "manual_notes": {}
+  },
+
+  "segmentation_rules": {
+    "focus": "SNc: seeds and anchors from atlas SNc only; SNc+SNr region = outer limit (the boundary may lie in SNr, never beyond)",
+    "search_region": {"structure": "CIT168 SNc+SNr", "p_min": 0.25, "dilate_mm": 1.0,
+                      "exclude": {"structure": "RN", "p_min": 0.5}},
+    "snc_anchor": {"structure": "CIT168 SNc", "p_min": 0.5, "fallback_p_min": 0.25, "per_side": true},
+    "core_percentile": 75,
+    "gmm": {"n_components": 3, "covariance": "full", "feature": "crus ratio", "fit_region": "search region",
+            "posterior_min": 0.5, "seed_tail": 31},
+    "gate": {"both_sides_nonempty": true, "containment_min": 0.85, "core_coverage_min": 0.70,
+             "contrast_min_exclusive": 1.0, "lr_ratio_range": [0.69, 1.27], "largest_piece_min": 0.90}
+  },
+
+  "gmm_refinement": {
+    "bridge_gap_mm": 2.0,
+    "bridge_tol_mm": 0.5625,
+    "reason": "It looks correct for almost all subjects"
+  },
+
+  "nnunet": {
+    "dataset_id": 721,
+    "dataset_name": "Dataset721_chealdev49r1",
+    "configuration": "3d_fullres",
+    "trainer": "nnUNetTrainer_100epochs",
+    "plans": "nnUNetPlans",
+    "folds": [0, 1, 2, 3, 4],
+    "checkpoint": "checkpoint_final.pth",
+    "probability_threshold": 0.5,
+    "ignore_slices_above": 2,
+    "weak_subjects": ["acute_SCZ-28F", "chronic_SCZ-32F", "chronic_SCZ-36M", "chronic_SCZ-37M",
+                      "control_HC-56M", "control_HC-74F", "control_HC-59F"],
+    "train_if_model_missing": true,
+    "inference_subjects": "all"
+  },
+
+  "output": {
+    "mask_suffix": "_sn_mask.nii.gz",
+    "keep_work_files": false,
+    "qc_pages_dpi": 110
+  }
+}

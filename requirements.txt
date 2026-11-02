@@ -1,0 +1,14 @@
+# Python 3.10 - 3.13. Install with:  python -m pip install -r requirements.txt
+# The two pinned packages are the releases the frozen model and the registrations were made with.
+antspyx==0.6.3
+nnunetv2==2.8.1
+numpy
+scipy
+pandas
+nibabel
+SimpleITK
+scikit-image
+scikit-learn
+matplotlib
+# torch is installed by nnunetv2. For a CUDA GPU build of torch, install it first from https://pytorch.org
+# (the CPU build is enough for inference; training needs a CUDA GPU).
