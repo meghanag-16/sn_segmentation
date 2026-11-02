@@ -12,9 +12,9 @@ REM ---------------------------- WINDOWS SETTINGS (edit these) -----------------
 REM Folder that holds the earlier outputs (searched by file name; sub-folders are fine):
 REM   subjects.csv, qc_table_1_8.csv (or qc_table.csv) + crop_windows.csv + crops\, phase_1_3b_decisions.json
 REM   (or atlas_registration_decisions.json), and optionally nnUNet_results\Dataset721_chealdev49r1\...
-set "SAVED_DIR=C:\Users\Meghana G\Desktop\engineering\cheal\kaggle_outputs"
+set "SAVED_DIR="
 REM Output folder for the masks, QC pages and summary
-set "OUTPUT_DIR=C:\Users\Meghana G\Desktop\engineering\cheal\prediction_output"
+set "OUTPUT_DIR="
 REM nnU-Net results folder that contains Dataset721_chealdev49r1. Empty = search below SAVED_DIR
 set "MODEL_DIR="
 REM test = only the test subjects; all = every subject included for inference
