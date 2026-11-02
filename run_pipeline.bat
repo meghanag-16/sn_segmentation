@@ -10,9 +10,9 @@ REM ============================================================================
 
 REM ---------------------------- WINDOWS SETTINGS (edit these) ----------------------------
 REM Folder that holds Healthy_controls, Schiz and testing (or a folder above it)
-set "DATASET_DIR=C:\Users\Meghana G\Desktop\engineering\cheal\PES_university_data"
+set "DATASET_DIR="
 REM Folder with CIT168_T1w_head_700um.nii, prob_atlas_bilateral.nii, prob_atlas.nii, labels.txt
-set "ATLAS_DIR=C:\Users\Meghana G\Desktop\engineering\cheal\atlas"
+set "ATLAS_DIR="
 REM Output folder. Leave empty to create <dataset folder name>_sn_pipeline_output next to the dataset folder
 set "OUTPUT_DIR="
 REM nnU-Net results folder that contains Dataset721_chealdev49r1. Leave empty to train (GPU needed)
